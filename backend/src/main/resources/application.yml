@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: docpulse-ai-backend
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:docpulse}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  ai:
+    openai:
+      api-key: ${GROQ_API_KEY:gsk_placeholder}
+      base-url: https://api.groq.com/openai
+      chat:
+        options:
+          model: ${GROQ_MODEL:llama-3.1-8b-instant}
+          temperature: 0.2
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE
+        dimensions: 384
+        initialize-schema: true
+        table-name: vector_store
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+

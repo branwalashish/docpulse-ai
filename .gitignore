@@ -1,0 +1,67 @@
+# Environment & Secrets (NEVER COMMIT)
+.env
+.env.*
+!.env.example
+*.env
+*.key
+*.pem
+
+# Dependencies
+node_modules/
+*/node_modules/
+package-lock.json
+
+# Java / Spring Boot build outputs
+target/
+*/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+
+# Frontend production builds
+dist/
+dist-ssr/
+build/
+*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS Generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs & Editors
+.idea/
+*.iml
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.project
+.classpath
+.settings/
+.factorypath
+bin/
+
+# Temporary files & Scratch
+tmp/
+temp/
+scratch/
+
