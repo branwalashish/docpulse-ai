@@ -21,14 +21,14 @@
     </properties>
 
     <dependencies>
-        <!-- Web & Reactive SSE Streaming -->
+        <!-- Web & Virtual Threads (Spring MVC) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
         </dependency>
 
         <!-- Spring AI OpenAI Starter (Used to interface with Groq's OpenAI-compatible endpoint) -->
