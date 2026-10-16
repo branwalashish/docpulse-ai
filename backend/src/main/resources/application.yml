@@ -9,9 +9,9 @@ spring:
       enabled: true
 
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:docpulse}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:postgres}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:docpulse}}
+    username: ${SPRING_DATASOURCE_USERNAME:${POSTGRES_USER:postgres}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${POSTGRES_PASSWORD:postgres}}
     driver-class-name: org.postgresql.Driver
 
   ai:
@@ -25,7 +25,7 @@ spring:
     vectorstore:
       pgvector:
         index-type: HNSW
-        distance-type: COSINE
+        distance-type: COSINE_DISTANCE
         dimensions: 384
         initialize-schema: true
         table-name: vector_store
