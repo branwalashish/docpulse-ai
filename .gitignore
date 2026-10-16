@@ -1,19 +1,25 @@
 # Environment & Secrets (NEVER COMMIT)
 .env
 .env.*
-!.env.example
+.env.local
+.env.*.local
 *.env
 *.key
 *.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+!.env.example
 
 # Dependencies
 node_modules/
-*/node_modules/
+**/node_modules/
 package-lock.json
 
 # Java / Spring Boot build outputs
 target/
-*/target/
+**/target/
 *.class
 *.jar
 *.war
@@ -24,6 +30,7 @@ target/
 
 # Frontend production builds
 dist/
+**/dist/
 dist-ssr/
 build/
 *.local
@@ -64,4 +71,3 @@ bin/
 tmp/
 temp/
 scratch/
-
