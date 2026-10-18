@@ -75,3 +75,4 @@ public final class TextSanitizer {
         return text == null || sanitize(text).isEmpty();
     }
 }
+

@@ -18,7 +18,7 @@ public enum SupportedContentType {
             Set.of("application/vnd.openxmlformats-officedocument.wordprocessingml.document")),
     DOC("application/msword", ".doc", Set.of("application/msword")),
     TEXT_PLAIN("text/plain", ".txt", Set.of("text/plain")),
-    MARKDOWN("text/markdown", ".md", Set.of("text/markdown", "text/x-markdown")),
+    MARKDOWN("text/markdown", ".md", Set.of("text/markdown", "text/x-markdown", "text/x-web-markdown")),
     CSV("text/csv", ".csv", Set.of("text/csv", "application/csv"));
 
     private final String canonicalMimeType;

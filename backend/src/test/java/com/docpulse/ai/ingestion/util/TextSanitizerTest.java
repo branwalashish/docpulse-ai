@@ -72,3 +72,4 @@ class TextSanitizerTest {
         assertThat(TextSanitizer.isBlank("Valid content")).isFalse();
     }
 }
+
