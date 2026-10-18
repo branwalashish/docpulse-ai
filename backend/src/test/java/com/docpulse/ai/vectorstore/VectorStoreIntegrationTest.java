@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.docpulse.ai.common.model.AccessTier;
 import com.docpulse.ai.common.model.DocumentMetadata;
+import com.docpulse.ai.ingestion.model.ParsedDocument;
 
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,9 @@ class VectorStoreIntegrationTest {
 
     @Autowired
     private PgVectorStore vectorStore;
+
+    @Autowired
+    private com.docpulse.ai.ingestion.service.DocumentParsingService parsingService;
 
     @Test
     @DisplayName("Verify EmbeddingModel produces 384-dimensional unit vectors")
@@ -78,6 +82,65 @@ class VectorStoreIntegrationTest {
 
         // 3. Clean up test document
         vectorStore.delete(List.of(doc.getId()));
+    }
+
+    @Test
+    @DisplayName("Verify End-to-End pipeline across Day 1 (Postgres/Virtual Threads), Day 2 (Vector Store/Metadata), and Day 3 (Document Parsing/Sanitization)")
+    void testEndToEndDay1Day2Day3Pipeline() {
+        assertThat(parsingService).isNotNull();
+        assertThat(vectorStore).isNotNull();
+
+        // 1. DAY 3: Parse and sanitize raw markdown document with potential null bytes and Windows line endings
+        String rawMarkdown = "# Tenant Onboarding Policy\r\n\r\n"
+                + "DocPulse AI enforces strict multi-tenant isolation at the database vector level.\r\n"
+                + "Every chunk is tagged with tenant_id and access_tier.\0\r\n";
+
+        org.springframework.mock.web.MockMultipartFile multipartFile = new org.springframework.mock.web.MockMultipartFile(
+                "file",
+                "tenant_policy.md",
+                "text/markdown",
+                rawMarkdown.getBytes(java.nio.charset.StandardCharsets.UTF_8)
+        );
+
+        ParsedDocument parsed = parsingService.parse(multipartFile);
+
+        assertThat(parsed).isNotNull();
+        assertThat(parsed.getRawText()).doesNotContain("\u0000");
+        assertThat(parsed.getRawText()).contains("Tenant Onboarding Policy");
+        assertThat(parsed.getWordCount()).isGreaterThan(0);
+
+        // 2. DAY 2: Attach multi-tenant metadata contract
+        DocumentMetadata metadata = DocumentMetadata.builder()
+                .tenantId("tenant-finance-e2e")
+                .documentId("doc-fin-999")
+                .documentName("tenant_policy.md")
+                .chunkId("chunk-0")
+                .accessTier(AccessTier.CONFIDENTIAL)
+                .build();
+
+        Document document = new Document(parsed.getRawText(), metadata.toMap());
+
+        // 3. DAY 1 & 2: Ingest into PostgreSQL pgvector table
+        vectorStore.add(List.of(document));
+
+        try {
+            // 4. DAY 2: Query vector store with semantic search
+            SearchRequest query = SearchRequest.builder()
+                    .query("How does DocPulse AI isolate tenants at the vector level?")
+                    .topK(3)
+                    .build();
+
+            List<Document> matched = vectorStore.similaritySearch(query);
+
+            assertThat(matched).isNotEmpty();
+            Document topResult = matched.get(0);
+            assertThat(topResult.getMetadata().get("tenant_id")).isEqualTo("tenant-finance-e2e");
+            assertThat(topResult.getMetadata().get("access_tier")).isEqualTo(AccessTier.CONFIDENTIAL.name());
+            assertThat(topResult.getText()).contains("Tenant Onboarding Policy");
+        } finally {
+            // 5. Cleanup
+            vectorStore.delete(List.of(document.getId()));
+        }
     }
 }
 
