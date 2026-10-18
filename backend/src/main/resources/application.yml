@@ -14,6 +14,11 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:${POSTGRES_PASSWORD:postgres}}
     driver-class-name: org.postgresql.Driver
 
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+
   ai:
     openai:
       api-key: ${GROQ_API_KEY:gsk_placeholder}
@@ -22,12 +27,20 @@ spring:
         options:
           model: ${GROQ_MODEL:llama-3.1-8b-instant}
           temperature: 0.2
+      embedding:
+        enabled: false
+    embedding:
+      huggingface:
+        base-url: https://api-inference.huggingface.co/pipeline/feature-extraction/
+        model: ${EMBEDDING_MODEL:BAAI/bge-small-en-v1.5}
+        api-key: ${HUGGINGFACE_API_KEY:}
+        dimensions: 384
     vectorstore:
       pgvector:
         index-type: HNSW
         distance-type: COSINE_DISTANCE
         dimensions: 384
-        initialize-schema: true
+        initialize-schema: false
         table-name: vector_store
 
 management:
