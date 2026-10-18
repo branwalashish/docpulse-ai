@@ -32,6 +32,7 @@ public class DotEnvEnvironmentPostProcessor implements EnvironmentPostProcessor,
 
         for (File file : candidates) {
             if (file.exists() && file.isFile()) {
+                System.out.println("[DotEnv] Found .env file at: " + file.getAbsolutePath());
                 Map<String, Object> props = new HashMap<>();
                 try {
                     List<String> lines = Files.readAllLines(file.toPath());
@@ -46,6 +47,10 @@ public class DotEnvEnvironmentPostProcessor implements EnvironmentPostProcessor,
                             String value = trimmed.substring(eqIndex + 1).trim();
                             props.put(key, value);
 
+                            if (System.getProperty(key) == null) {
+                                System.setProperty(key, value);
+                            }
+
                             // Normalize uppercase environment keys to Spring property format
                             String dotKey = key.toLowerCase().replace('_', '.');
                             props.put(dotKey, value);
@@ -53,14 +58,19 @@ public class DotEnvEnvironmentPostProcessor implements EnvironmentPostProcessor,
                             // Specifically map datasource keys if provided
                             if ("SPRING_DATASOURCE_URL".equalsIgnoreCase(key)) {
                                 props.put("spring.datasource.url", value);
+                                System.setProperty("spring.datasource.url", value);
                             } else if ("SPRING_DATASOURCE_USERNAME".equalsIgnoreCase(key) || "POSTGRES_USER".equalsIgnoreCase(key)) {
                                 props.put("spring.datasource.username", value);
+                                System.setProperty("spring.datasource.username", value);
                             } else if ("SPRING_DATASOURCE_PASSWORD".equalsIgnoreCase(key) || "POSTGRES_PASSWORD".equalsIgnoreCase(key)) {
                                 props.put("spring.datasource.password", value);
+                                System.setProperty("spring.datasource.password", value);
                             }
                         }
                     }
-                } catch (IOException ignored) {
+                    System.out.println("[DotEnv] Loaded " + props.size() + " properties from .env");
+                } catch (IOException e) {
+                    System.err.println("[DotEnv] Error reading .env: " + e.getMessage());
                 }
 
                 if (!props.isEmpty()) {
