@@ -9,6 +9,9 @@ import org.springframework.ai.vectorstore.pgvector.PgVectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.docpulse.ai.common.model.AccessTier;
+import com.docpulse.ai.common.model.DocumentMetadata;
+
 import java.util.List;
 import java.util.Map;
 
@@ -47,16 +50,15 @@ class VectorStoreIntegrationTest {
         assertThat(vectorStore).isNotNull();
 
         String testContent = "DocPulse AI uses Spring AI with PGVector and HNSW cosine indexing.";
-        Document doc = new Document(
-                testContent,
-                Map.of(
-                        "tenant_id", "test-tenant-day2",
-                        "document_id", "doc-12345",
-                        "document_name", "architecture-day2.pdf",
-                        "chunk_id", "chunk-001",
-                        "access_tier", "DEFAULT"
-                )
-        );
+        DocumentMetadata metadata = DocumentMetadata.builder()
+                .tenantId("test-tenant-day2")
+                .documentId("doc-12345")
+                .documentName("architecture-day2.pdf")
+                .chunkId("chunk-001")
+                .accessTier(AccessTier.DEFAULT)
+                .build();
+
+        Document doc = new Document(testContent, metadata.toMap());
 
         // 1. Add document to vector store
         vectorStore.add(List.of(doc));
